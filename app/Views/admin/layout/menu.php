@@ -78,6 +78,12 @@ $site         = $konfigurasi->listing();
               </p>
             </a>
             <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="<?php echo base_url('admin/pinjaman/rincian') ?>" class="nav-link">
+                  <i class="fas fa-tags nav-icon"></i>
+                  <p>Laporan Debit Kredit</p>
+                </a>
+              </li>
               <li class="nav-item">
                 <a href="<?php echo base_url('admin/staff') ?>" class="nav-link">
                   <i class="fas fa-table nav-icon"></i>
@@ -96,12 +102,7 @@ $site         = $konfigurasi->listing();
                   <p>Laporan Buku Besar</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="<?php echo base_url('admin/kategori_staff') ?>" class="nav-link">
-                  <i class="fas fa-tags nav-icon"></i>
-                  <p>Laporan Debit Kredit</p>
-                </a>
-              </li>
+
             </ul>
           </li>
           <!-- pengguna -->

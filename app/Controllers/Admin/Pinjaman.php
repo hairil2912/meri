@@ -7,6 +7,7 @@ use App\Models\Nasabah_model;
 use App\Models\User_model;
 use App\Models\CicilanModel;
 
+
 class Pinjaman extends BaseController
 {
 	
@@ -32,6 +33,47 @@ class Pinjaman extends BaseController
 
 		echo view('admin/layout/wrapper',$data);
 	}
+
+
+	public function rincian()
+	{
+		checklogin();
+		$transaksiModel = new Pinjaman_model();
+        $transaksiData = $transaksiModel->getTransaksi();
+
+
+
+		$data = [	'title'			=> 'Rincian Transaksi',
+					'transaksiData' => $transaksiData,
+					'content'		=> 'admin/pinjaman/rincian'
+				];
+
+		echo view('admin/layout/wrapper',$data);
+	}
+
+
+	public function datatables()
+    {
+		$transaksiModel = new Pinjaman_model();
+
+        $builder = $transaksiModel->getTransaksi();
+        $data = $builder->get()->getResult();
+
+        $response = [];
+        foreach ($data as $row) {
+            $response[] = [
+                'id_pinjaman' => $row->id_pinjaman,
+                'tgl_transaksi' => $row->tgl_transaksi,
+                'nama' => $row->nama,
+                'jenis_transaksi' => $row->jenis_transaksi,
+                'masuk' => $row->masuk,
+                'keluar' => $row->keluar
+            ];
+        }
+
+        return $this->response->setJSON(['data' => $response]);
+    }
+
 
 		// detail
 		public function detail($id_pinjaman)

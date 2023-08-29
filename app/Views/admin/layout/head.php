@@ -52,6 +52,7 @@ $site         = $konfigurasi->listing();
   <link href="<?php echo base_url('assets/admin/plugins/jquery-ui/jquery-ui.min.css') ?>" rel="stylesheet">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
   <script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.0.0/dist/jspdf.umd.min.js"></script>
   <style type="text/css" media="screen">
     .ui-timepicker-container{ 
          z-index:1151 !important; 
