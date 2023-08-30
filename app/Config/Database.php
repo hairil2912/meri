@@ -28,7 +28,7 @@ class Database extends Config
 	/**
 	 * The default database connection.
 	 *
-	 * @var array
+	 * @var array 
 	 */
 	public $default = [
 		'DSN'      => '',

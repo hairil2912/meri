@@ -22,7 +22,7 @@ class App extends BaseConfig
 	 * environments.
 	 *
 	 * @var string
-	 */
+	 */ 
 	public $baseURL = 'http://localhost/pin/';
 
 	/**
