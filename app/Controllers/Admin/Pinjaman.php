@@ -6,12 +6,143 @@ use App\Models\Pinjaman_model;
 use App\Models\Nasabah_model;
 use App\Models\User_model;
 use App\Models\CicilanModel;
+use Dompdf\Dompdf;
+use GuzzleHttp\Client;
 
 
 class Pinjaman extends BaseController
 {
+
+	public function generateAndSendPDF()
+    {
+        $dompdf = new Dompdf();
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Kuitansi Pinjaman</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20px;
+                }
+                .table th, .table td {
+                    border: 1px solid black;
+                    padding: 8px;
+                    text-align: center;
+                }
+                .name {
+                    text-align: right;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Kuitansi Pinjaman</h1>
+                <p>Jumlah Pinjaman: Rp 2.000.000</p>
+            </div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Bulan</th>
+                        <th>Jumlah Cicilan</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+        $totalCicilan = 10;
+        $cicilanPerBulan = 260000;
+        
+        for ($bulan = 1; $bulan <= $totalCicilan; $bulan++) {
+            $html .= '<tr>';
+            $html .= '<td>' . $bulan . '</td>';
+            $html .= '<td>Rp ' . number_format($cicilanPerBulan, 0, ',', '.') . '</td>';
+            $html .= '</tr>';
+        }
+
+        $html .= '
+                </tbody>
+            </table>
+            
+            <p class="name">Nama Peminjam: [Nama Peminjam]</p>
+        </body>
+        </html>';
+
+        // Generate PDF
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $pdfContent = $dompdf->output();
+
+        $client = new Client();
+
+        $response = $client->request('POST', 'http://103.150.191.56:3000/send/file', [
+            'headers' => [
+                'Authorization' => 'Basic bmltZGE6bmltZGExMjM=',
+            ],
+            'multipart' => [
+                [
+                    'name' => 'phone',
+                    'contents' => '6282349782444@s.whatsapp.net',
+                ],
+                [
+                    'name' => 'caption',
+                    'contents' => 'tes ya',
+                ],
+                [
+                    'name' => 'file',
+                    'contents' => $pdfContent,
+                    'filename' => 'sample.pdf',
+                ],
+            ],
+        ]);
+
+        $responseBody = $response->getBody()->getContents();
+
+        return $responseBody;
+    }
 	
-	
+	public function sendRequest()
+    {
+        $client = new Client();
+
+        $response = $client->request('POST', 'http://103.150.191.56:3000/send/file', [
+            'headers' => [
+                'Authorization' => 'Basic bmltZGE6bmltZGExMjM=',
+            ],
+            'multipart' => [
+                [
+                    'name' => 'phone',
+                    'contents' => '6282349782444@s.whatsapp.net',
+                ],
+                [
+                    'name' => 'caption',
+                    'contents' => 'tes ya',
+                ],
+                [
+                    'name' => 'file',
+                    'contents' => fopen('path/to/sample.pdf', 'r'),
+                    'filename' => 'sample.pdf',
+                ],
+            ],
+        ]);
+
+        $responseBody = $response->getBody()->getContents();
+
+        return $responseBody;
+    }
 
 
 
@@ -33,6 +164,43 @@ class Pinjaman extends BaseController
 
 		echo view('admin/layout/wrapper',$data);
 	}
+
+
+
+
+
+	public function sendMessage()
+    {
+        $postData = array(
+            'phone' => '6282349782444@s.whatsapp.net',
+            'message' => 'ini kirimahhn dari codeigniter 4'
+        );
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'http://103.150.191.56:3000/send/message',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => http_build_query($postData),
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/x-www-form-urlencoded',
+                'Authorization: Basic bmltZGE6bmltZGExMjM='
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        echo $response;
+    }
+
+	
 
 
 	public function rincian()
