@@ -70,8 +70,9 @@
 			
 			<td>
 				<a href="<?php echo base_url('admin/pinjaman/detail/'.$pinjaman['id_pinjaman']) ?>" class="btn btn-info btn-sm" target="_blank"><i class="fa fa-eye"></i></a>
-				<a href="<?php echo base_url('admin/berita/edit/'.$pinjaman['id_berita']) ?>" class="btn btn-success btn-sm"><i class="fa fa-edit"></i></a>
-				<a href="<?php echo base_url('admin/berita/delete/'.$pinjaman['id_berita']) ?>" class="btn btn-dark btn-sm" onclick="confirmation(event)"><i class="fa fa-trash"></i></a>
+				<!-- <a href="<?php echo base_url('admin/berita/edit/'.$pinjaman['id_pinjaman']) ?>" class="btn btn-success btn-sm"><i class="fa fa-edit"></i></a>
+				<a href="<?php echo base_url('admin/berita/delete/'.$pinjaman['id_pinjaman']) ?>" class="btn btn-dark btn-sm" onclick="confirmation(event)"><i class="fa fa-trash"></i></a> -->
+				<a href="<?php echo base_url('admin/pinjaman/kirim/'.$pinjaman['id_pinjaman']) ?>" class="btn btn-dark btn-sm" onclick="kirim(event)"><i class="fa fa-paper-plane"></i></a>
 			</td>
 		</tr>
 		<?php $no++; } ?>
