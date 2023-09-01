@@ -161,7 +161,7 @@ class Pinjaman extends BaseController
 					'pinjaman'		=> $pinjaman,
 					'content'		=> 'admin/pinjaman/index'
 				];
-
+ 
 		echo view('admin/layout/wrapper',$data);
 	}
 
@@ -169,17 +169,49 @@ class Pinjaman extends BaseController
 
 
 
-	public function sendMessage()
+	public function kirim($id_pinjaman)
     {
-        $postData = array(
-            'phone' => '6282349782444@s.whatsapp.net',
-            'message' => 'ini kirimahhn dari codeigniter 4'
-        );
+
+		checklogin();
+		$m_pinjaman = new Pinjaman_model();
+$pinjaman = $m_pinjaman->wa($id_pinjaman);
+
+
+// Inisialisasi teks kosong dalam variabel $message
+$message = '';
+
+$message = "Assamualaikum " . $pinjaman[0]['nama'] ."\n";
+$message .= "Ini Adalah Pesan Whatsapp Otomatis oleh CRK \n\n";
+$message .= "Berikut Rincian Transaksi Pinjaman yang disepakati \n\n";
+$message .= "Nama Nasabah: *" . $pinjaman[0]['nama'] . "*\n";
+$message .= "Tanggal Transaksi: *" . tanggal_bulan($pinjaman[0]['tgl_pinjaman']) . "*\n";
+$message .= "Total Pinjam: " . angka($pinjaman[0]['totalpinjam']) . "\n";
+$message .= "Angsuran Bulanan: " . angka($pinjaman[0]['angsuran_bulanan']) . "\n";
+$message .= "Jangka Waktu: " . $pinjaman[0]['bulan'] . " Bulan\n";
+$message .= "Note : Limit Pembayaran akan jatuh Tanggal 10 setiap Bulan  \n\n";
+$message .= "Terima kasih  \n";
+$message .= "Mohon untuk tidak membalas pesan ini \n";
+$message .= "Ttd CRK Pinjaman \n";
+
+$postData = array(
+    'phone' => '6282349782444@s.whatsapp.net',
+    'message' => $message
+);
+
+// Kirim pesan menggunakan API WhatsApp di sini
+
+$postData = array(
+    'phone' => '6282349782444@s.whatsapp.net',
+    'message' => $message
+);
+
+
+		
 
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'http://103.150.191.56:3000/send/message',
+            CURLOPT_URL => 'https://wa.crk.my.id/send/message',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,

@@ -3,7 +3,6 @@ namespace App\Controllers;
 
 use CodeIgniter\Controller;
 use App\Models\Konfigurasi_model;
-use App\Models\Galeri_model;
 
 class Kontak extends BaseController
 {
@@ -11,9 +10,9 @@ class Kontak extends BaseController
 	public function index()
 	{
 		$m_konfigurasi 	= new Konfigurasi_model();
-		$m_galeri		= new Galeri_model();
+		
 		$konfigurasi 	= $m_konfigurasi->listing();
-		$slider 		= $m_galeri->slider();
+
 
 		$data = [	'title'			=> 'Kontak Kami',
 					'description'	=> 'Kontak Kami '.$konfigurasi['namaweb'].', '.$konfigurasi['tentang'],

@@ -28,6 +28,26 @@ class Pinjaman_model extends Model
     }
 
 
+    public function wa($id_pinjaman)
+{
+    $builder = $this->db->table('t_pinjaman as p');
+    $builder->select('p.*, n.*, 
+    COUNT(CASE WHEN d.status = 1 THEN 1 ELSE NULL END) as lunas,
+    COUNT(CASE WHEN d.status = 0 THEN 1 ELSE NULL END) as blmlunas,
+    SUM(CASE WHEN d.status = 0 THEN d.angsuranbulat ELSE 0 END) as sisaangsuran,
+    SUM(CASE WHEN d.status = 1 THEN d.nil_bayar ELSE 0 END) as sudahbayar');
+    $builder->join('m_nasabah n', 'n.id_nasabah = p.id_nasabah', 'LEFT');
+    $builder->join('t_pinjaman_detail d', 'd.id_pinjaman = p.id_pinjaman', 'LEFT');
+    $builder->orderBy('p.id_pinjaman', 'DESC');
+    $builder->groupBy('p.id_pinjaman'); // Group by id_pinjaman to avoid duplicate rows
+    $builder->where('p.id_pinjaman', $id_pinjaman); // Filter by id_pinjaman
+    $query = $builder->get();
+    return $query->getResultArray();
+}
+
+
+
+
       // total
       public function total()
       {
