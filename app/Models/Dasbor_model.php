@@ -6,13 +6,27 @@ use CodeIgniter\Model;
 class Dasbor_model extends Model
 {
 
-    // berita
-    public function berita()
+    public function getDataJatuhTempo()
     {
-        $builder = $this->db->table('berita');
+        $builder = $this->db->table('t_pinjaman_detail pd');
+        $builder->select('pd.id_pinjaman_detail,
+        m_nasabah.no_wa,
+        m_nasabah.nama, 
+        pd.nil_pokok,
+        pd.angsuran_perbulan,
+        pd.j_tempo'); 
+        $builder->join('t_pinjaman t_pinjaman', 'pd.id_pinjaman = t_pinjaman.id_pinjaman');
+        $builder->join('m_nasabah', 't_pinjaman.id_nasabah = m_nasabah.id_nasabah');
+        $builder->where('pd.status', 0);
+        $builder->where('DATEDIFF(pd.j_tempo, NOW()) <=', 11);
+        // $builder->limit(2);
+        $builder->orderBy('t_pinjaman.id_pinjaman', 'DESC');
+        $builder->groupBy('t_pinjaman.id_pinjaman'); // Group by id_pinjaman to avoid duplicate rows
         $query = $builder->get();
-        return $query->getNumRows();
+        return $query->getResultArray();
     }
+
+
 
     public function pinjaman()
     {

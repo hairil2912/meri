@@ -13,7 +13,7 @@ use GuzzleHttp\Client;
 class Pinjaman extends BaseController
 {
 
-	public function generateAndSendPDF()
+	public function buatpdf()
     {
         $dompdf = new Dompdf();
         $html = '
@@ -114,7 +114,7 @@ class Pinjaman extends BaseController
         return $responseBody;
     }
 	
-	public function sendRequest()
+	public function kirimfile()
     {
         $client = new Client();
 
@@ -174,39 +174,37 @@ class Pinjaman extends BaseController
 
 		checklogin();
 		$m_pinjaman = new Pinjaman_model();
-$pinjaman = $m_pinjaman->wa($id_pinjaman);
+		$pinjaman = $m_pinjaman->wa($id_pinjaman);
 
 
-// Inisialisasi teks kosong dalam variabel $message
-$message = '';
 
-$message = "Assamualaikum " . $pinjaman[0]['nama'] ."\n";
-$message .= "Ini Adalah Pesan Whatsapp Otomatis oleh CRK \n\n";
-$message .= "Berikut Rincian Transaksi Pinjaman yang disepakati \n\n";
-$message .= "Nama Nasabah: *" . $pinjaman[0]['nama'] . "*\n";
-$message .= "Tanggal Transaksi: *" . tanggal_bulan($pinjaman[0]['tgl_pinjaman']) . "*\n";
-$message .= "Total Pinjam: " . angka($pinjaman[0]['totalpinjam']) . "\n";
-$message .= "Angsuran Bulanan: " . angka($pinjaman[0]['angsuran_bulanan']) . "\n";
-$message .= "Jangka Waktu: " . $pinjaman[0]['bulan'] . " Bulan\n";
-$message .= "Note : Limit Pembayaran akan jatuh Tanggal 10 setiap Bulan  \n\n";
-$message .= "Terima kasih  \n";
-$message .= "Mohon untuk tidak membalas pesan ini \n";
-$message .= "Ttd CRK Pinjaman \n";
+		$message = '';
 
-$postData = array(
-    'phone' => '6282349782444@s.whatsapp.net',
-    'message' => $message
-);
-
-// Kirim pesan menggunakan API WhatsApp di sini
-
-$postData = array(
-    'phone' => '6282349782444@s.whatsapp.net',
-    'message' => $message
-);
+		$message = "Assamualaikum " . $pinjaman[0]['nama'] ."\n";
+		$message .= "Ini Adalah Pesan Whatsapp Otomatis oleh CRK \n\n";
+		$message .= "Berikut Rincian Transaksi Pinjaman yang disepakati \n\n";
+		$message .= "Nama Nasabah: *" . $pinjaman[0]['nama'] . "*\n";
+		$message .= "Tanggal Transaksi: *" . tanggal_bulan($pinjaman[0]['tgl_pinjaman']) . "*\n";
+		$message .= "Total Pinjam: " . angka($pinjaman[0]['totalpinjam']) . "\n";
+		$message .= "Angsuran Bulanan: " . angka($pinjaman[0]['angsuran_bulanan']) . "\n";
+		$message .= "Jangka Waktu: " . $pinjaman[0]['bulan'] . " Bulan\n";
+		$message .= "Note : Limit Pembayaran akan jatuh Tanggal 10 setiap Bulan  \n\n";
+		$message .= "Terima kasih  \n";
+		$message .= "Mohon untuk tidak membalas pesan ini \n";
+		$message .= "Ttd CRK Pinjaman \n";
 
 
-		
+		$no_wa = $pinjaman[0]['no_wa'];
+		if (substr($no_wa, 0, 1) === '0') {
+			// Jika dimulai dengan "0", tambahkan "62"
+			$no_wa = '62' . substr($no_wa, 1);
+		}
+
+		$postData = array(
+			'phone' =>  $no_wa .'@s.whatsapp.net',
+			'message' => $message
+		);
+
 
         $curl = curl_init();
 
@@ -229,8 +227,83 @@ $postData = array(
         $response = curl_exec($curl);
         curl_close($curl);
 
-        echo $response;
+       
+			
+		$responseData = json_decode($response, true);
+
+		if ($responseData && isset($responseData['code'])) {
+			if ($responseData['code'] === 'SUCCESS') {
+				$this->session->setFlashdata('sukses', 'Berhasil kirim Whatsapp');
+				return redirect()->to(base_url('admin/pinjaman'));
+			} else {
+				$this->session->setFlashdata('warning', 'Gagal kirim Whatsapp');
+				return redirect()->to(base_url('admin/pinjaman'));
+			}
+		}
+	}
+
+// Controller cronkirimwa
+public function cronkirimwa()
+{
+    checklogin();
+    $transaksiModel = new Pinjaman_model();
+    $transaksiData = $transaksiModel->getDataJatuhTempo(); // Mengambil data dari model
+
+	
+    foreach ($transaksiData as $data) {
+        $this->kirimwa($data); // Memanggil fungsi kirimwa untuk mengirim pesan dengan data yang sesuai
+        sleep(20); // Delay 5 detik sebelum pengiriman pesan berikutnya
+		// print_r($data);
+	}
+	// die;
+}
+
+// Controller kirimwa
+public function kirimwa($data)
+{
+    checklogin();
+
+
+	$message = "Halo *" . $data['nama'] . "*\n"
+	. "Cicilan Anda sebesar " . angka($data['angsuran_perbulan']) . "\n"
+	. "Jatuh tempo pada tanggal " . $data['j_tempo'];
+	
+
+    $no_wa = $data['no_wa'];
+    if (substr($no_wa, 0, 1) === '0') {
+        // Jika dimulai dengan "0", tambahkan "62"
+        $no_wa = '62' . substr($no_wa, 1);
     }
+
+    $postData = array(
+        'phone' => $no_wa . '@s.whatsapp.net',
+        'message' => $message
+    );
+
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://wa.crk.my.id/send/message',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => http_build_query($postData),
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/x-www-form-urlencoded',
+            'Authorization: Basic bmltZGE6bmltZGExMjM='
+        ),
+    ));
+
+    $response = curl_exec($curl);
+    curl_close($curl);
+
+    $responseData = json_decode($response, true);
+}
+
 
 	
 

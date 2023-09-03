@@ -37,7 +37,7 @@
 					<i class="fa fa-calendar-check"></i> 
 					<?php echo tanggal_id($pinjaman['tgl_pinjaman']) ?>
 
-					<?php($pinjaman['blmlunas']) ?>
+				
 					
 				</small>
 			</td>

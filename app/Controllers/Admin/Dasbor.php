@@ -8,8 +8,14 @@ class Dasbor extends BaseController
 {
 	public function index()
 	{
-		checklogin();		
+		checklogin();
+		
+		$model = new Dasbor_model();
+        $tempo = $model->getDataJatuhTempo();
+
+
 		$data = [	'title'			=> 'Dashboard Aplikasi',
+					'tempo'			=> $tempo,
 					'content'		=> 'admin/dasbor/index'
 				];
 		echo view('admin/layout/wrapper',$data);
